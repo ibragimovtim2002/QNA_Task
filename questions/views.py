@@ -65,8 +65,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
        """
         question = self.get_object()
         logger.info(f"Попытка удалить вопрос id={question.id}")
+        question_id = question.id
         self.perform_destroy(question)
-        logger.info(f"Вопрос id={question.id} и все ответы удалены")
+        logger.info(f"Вопрос id={question_id} и все ответы удалены")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -123,8 +124,9 @@ class AnswerViewSet(viewsets.GenericViewSet):
         """
         answer = get_object_or_404(Answer, pk=pk)
         logger.info(f"Попытка удалить ответ id={answer.id}")
+        answer_id = answer.id
         answer.delete()
-        logger.info(f"Ответ id={answer.id} успешно удален")
+        logger.info(f"Ответ id={answer_id} успешно удален")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 logger = logging.getLogger(__name__)
