@@ -15,16 +15,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
         Предоставляет стандартные CRUD-операции через REST API для объектов Question:
         list, retrieve, create, update, partial_update, destroy.
 
-    Атрибуты:
-        queryset (QuerySet): Набор вопросов, отсортированный по убыванию даты создания.
-        serializer_class (Serializer): Сериализатор, используемый для валидации и представления данных (QuestionSerializer).
-
     Методы:
         create(self, request, *args, **kwargs): Создание вопроса с логгированием
         destroy(self, request, *args, **kwargs): Удаляет вопрос и все связанные ответы с логгированием
 
-    Примечание:
-        Вложенные ответы включаются через `QuestionSerializer` (read-only).
     """
     queryset = Question.objects.all().order_by('-created_at')
     serializer_class = QuestionSerializer
@@ -32,11 +26,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         """
         Создаёт новый объект Question через API.
-
-        Аргументы:
-            request (rest_framework.request.Request): HTTP-запрос с данными нового вопроса.
-            *args: дополнительные позиционные аргументы.
-            **kwargs: дополнительные именованные аргументы.
 
         Поведение:
             - Валидирует входные данные через сериализатор.
@@ -61,11 +50,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         """
        Удаляет объект Question и все связанные с ним ответы через API.
-
-       Аргументы:
-           request (rest_framework.request.Request): HTTP-запрос для удаления.
-           *args: дополнительные позиционные аргументы.
-           **kwargs: дополнительные именованные аргументы.
 
        Поведение:
            - Получает объект Question по PK через `self.get_object()`.
@@ -94,16 +78,9 @@ class AnswerViewSet(viewsets.GenericViewSet):
         Предоставляет ограниченный набор операций REST API для объектов Answer:
         получение одного объекта (retrieve) и удаление (destroy).
 
-    Атрибуты:
-        queryset (QuerySet): Набор всех ответов (`Answer.objects.all()`).
-        serializer_class (Serializer): Сериализатор, используемый для представления и валидации (`AnswerSerializer`).
-
     Методы:
         retrieve(request, pk): Возвращает сериализованные данные ответа. Статус HTTP 200 при успехе, 404 если не найден.
         destroy(request, pk): Удаляет ответ. Статус HTTP 204 при успешном удалении, 404 если не найден.
-
-    Примечание:
-        Использует `get_object_or_404` для получения экземпляра и стандартные ответы DRF через `Response`.
     """
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
@@ -111,10 +88,6 @@ class AnswerViewSet(viewsets.GenericViewSet):
     def retrieve(self, request, pk=None):
         """
         Получает объект Answer по его PK и возвращает сериализованные данные через API. При обращении логирует получение.
-
-        Аргументы:
-            request (rest_framework.request.Request): HTTP-запрос на получение ответа.
-            pk (int|str, optional): Первичный ключ (ID) ответа для получения.
 
         Поведение:
             - Использует `get_object_or_404` для поиска объекта Answer по `pk`.
@@ -135,10 +108,6 @@ class AnswerViewSet(viewsets.GenericViewSet):
     def destroy(self, request, pk=None):
         """
         Удаляет объект Answer по его PK через API.
-
-        Аргументы:
-            request (rest_framework.request.Request): HTTP-запрос на удаление ответа.
-            pk (int|str, optional): Первичный ключ (ID) ответа для удаления.
 
         Поведение:
             - Использует `get_object_or_404` для поиска объекта Answer по `pk`.
@@ -164,19 +133,13 @@ def create_answer_for_question(request, question_id):
     """
     Создаёт ответ для вопроса с указанным `question_id`.
 
-    Параметры:
-        request (rest_framework.request.Request): HTTP-запрос с JSON-данными. Ожидаемые поля в теле запроса:
-            - user_id (UUID): идентификатор пользователя, создающего ответ;
-            - text (str): текст ответа.
-        question_id (int|str): PK вопроса, к которому добавляется ответ.
-
     Поведение:
         1. Находит объект `Question` по `question_id` или возвращает HTTP 404, если не найден.
         2. Создаёт `AnswerSerializer` для валидации входных данных.
         3. Если данные валидны — создаёт объект `Answer`, логирует создание и возвращает ответ со статусом HTTP 201.
         4. Если валидация не проходит — логирует ошибки и возвращает HTTP 400 с описанием ошибок.
 
-    Возвращает:
+    Returns:
         rest_framework.response.Response:
             - 201 Created с сериализованными данными ответа при успешном создании;
             - 400 Bad Request с ошибками валидации при некорректных данных;
