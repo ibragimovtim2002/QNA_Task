@@ -126,7 +126,7 @@ class AnswerViewSet(viewsets.GenericViewSet):
         answer = get_object_or_404(Answer, pk=pk)
         logger.info(f"Попытка удалить ответ id={answer.id}")
         answer_id = answer.id
-        answer.delete()
+        delete_answer(pk)
         logger.info(f"Ответ id={answer_id} успешно удален")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -153,8 +153,8 @@ def create_answer_for_question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     serializer = AnswerSerializer(data=request.data)
     if serializer.is_valid():
-        answer = Answer.objects.create(
-            question=question,
+        answer = create_answer(
+            question_id=question.id,
             user_id=serializer.validated_data['user_id'],
             text=serializer.validated_data['text']
         )
