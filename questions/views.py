@@ -3,7 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
-
+from django.shortcuts import render
 from .models import Question, Answer
 from .serializers import QuestionSerializer, AnswerSerializer
 from.services import create_question, delete_question, create_answer, delete_answer
@@ -137,3 +137,6 @@ def create_answer_for_question(request, question_id):
     else:
         logger.warning(f"Ошибка валидации при создании ответа: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def home(request):
+    return render(request, "questions/index.html")
