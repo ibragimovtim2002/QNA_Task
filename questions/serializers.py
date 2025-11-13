@@ -8,11 +8,6 @@ class AnswerSerializer(serializers.ModelSerializer):
     Назначение:
         Преобразует объекты `Answer` в представление для API и валидирует входные данные при создании/обновлении ответов.
 
-    Meta:
-        model (Answer): модель, которую представляет сериализатор.
-        fields (list): `['id', 'question_id', 'user_id', 'text', 'created_at']` — поля, включённые в сериализацию.
-        read_only_fields (list): `['id', 'created_at', 'question_id']` — поля только для чтения.
-
     Методы:
         validate_text (value): гарантирует, что поле `text` не пустое и не состоит только из пробельных символов.
     """
@@ -34,11 +29,6 @@ class QuestionSerializer(serializers.ModelSerializer):
     Назначение:
         Преобразует объекты `Question` в представление для API и валидирует входные данные при создании/обновлении вопросов.
         Включает вложенные ответы с помощью `AnswerSerializer` (только для чтения).
-
-    Meta:
-        model (Question): модель, которую представляет сериализатор.
-        fields (list): `['id', 'text', 'created_at', 'answers']` — поля, включённые в сериализацию.
-        read_only_fields (list): `['id', 'created_at', 'answers']` — поля только для чтения.
 
     Поля:
         answers (AnswerSerializer): вложенный список ответов, использует `many=True` и `read_only=True`.
