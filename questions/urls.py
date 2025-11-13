@@ -1,12 +1,6 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
-from .views import QuestionViewSet, AnswerViewSet, create_answer_for_question, home
-
-router = DefaultRouter()
-router.register(r'questions', QuestionViewSet, basename='questions')
-router.register(r'answers', AnswerViewSet, basename='answers')
+from .views import home
 
 urlpatterns = [
     path('', home, name='home'),
-    path('questions/<int:question_id>/answers/', create_answer_for_question, name='create_answer'),
 ]
