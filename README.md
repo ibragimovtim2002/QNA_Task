@@ -14,16 +14,26 @@
 
 1) Запуск с помощью docker-compose
 - Собрать и запустить контейнеры:
+  ```text
   docker-compose up --build -d
+  ```
 - Выполнить миграции:
+  ```text
   docker-compose run web python manage.py migrate
-- Просмотреть логи:
+  ```
+- Просмотреть логи (если необходимо):
+  ```text
   docker-compose logs -f
+  ```
 
 2) Проект будет доступен по адресу:
-'''
+```text
   http://localhost:8000
-'''
+```
+3) Проведение тестов:
+```text
+   docker-compose run web pytest
+```
 
    
 
