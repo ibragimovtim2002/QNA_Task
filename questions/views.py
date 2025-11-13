@@ -1,6 +1,8 @@
+import logging
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view
 
 from .models import Question, Answer
 from .serializers import QuestionSerializer, AnswerSerializer
@@ -55,3 +57,43 @@ class AnswerViewSet(viewsets.GenericViewSet):
         answer = get_object_or_404(Answer, pk=pk)
         answer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+logger = logging.getLogger(__name__)
+@api_view(['POST'])
+def create_answer_for_question(request, question_id):
+    """
+    Создаёт ответ для вопроса с указанным `question_id`.
+
+    Параметры:
+        request (rest_framework.request.Request): HTTP-запрос с JSON-данными. Ожидаемые поля в теле запроса:
+            - user_id (UUID): идентификатор пользователя, создающего ответ;
+            - text (str): текст ответа.
+        question_id (int|str): PK вопроса, к которому добавляется ответ.
+
+    Поведение:
+        1. Находит объект `Question` по `question_id` или возвращает HTTP 404, если не найден.
+        2. Создаёт `AnswerSerializer` для валидации входных данных.
+        3. Если данные валидны — создаёт объект `Answer`, логирует создание и возвращает ответ со статусом HTTP 201.
+        4. Если валидация не проходит — логирует ошибки и возвращает HTTP 400 с описанием ошибок.
+
+    Возвращает:
+        rest_framework.response.Response:
+            - 201 Created с сериализованными данными ответа при успешном создании;
+            - 400 Bad Request с ошибками валидации при некорректных данных;
+            - 404 Not Found если вопрос не найден.
+
+    """
+    logger.info(f"Получен запрос на создание ответа для вопроса {question_id}")
+    question = get_object_or_404(Question, pk=question_id)
+    serializer = AnswerSerializer(data=request.data)
+    if serializer.is_valid():
+        answer = Answer.objects.create(
+            question=question,
+            user_id=serializer.validated_data['user_id'],
+            text=serializer.validated_data['text']
+        )
+        logger.debug(f"Ответ создан: id={answer.id}, user_id={answer.user_id}")
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        logger.warning(f"Ошибка валидации при создании ответа: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
