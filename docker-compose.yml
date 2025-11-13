@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: qna_user
+      POSTGRES_PASSWORD: qna_password
+      POSTGRES_DB: qna_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: gunicorn qna_project.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=1
+      - DB_NAME=qna_db
+      - DB_USER=qna_user
+      - DB_PASSWORD=qna_password
+      - DB_HOST=db
+      - DB_PORT=5432
+
+volumes:
+  postgres_data:
