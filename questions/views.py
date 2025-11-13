@@ -109,13 +109,53 @@ class AnswerViewSet(viewsets.GenericViewSet):
     serializer_class = AnswerSerializer
 
     def retrieve(self, request, pk=None):
+        """
+        Получает объект Answer по его PK и возвращает сериализованные данные через API. При обращении логирует получение.
+
+        Аргументы:
+            request (rest_framework.request.Request): HTTP-запрос на получение ответа.
+            pk (int|str, optional): Первичный ключ (ID) ответа для получения.
+
+        Поведение:
+            - Использует `get_object_or_404` для поиска объекта Answer по `pk`.
+            - Логирует факт получения ответа.
+            - Сериализует объект с помощью `AnswerSerializer` и возвращает в Response.
+
+        Returns:
+            rest_framework.response.Response: сериализованные данные ответа с HTTP 200 при успешном получении.
+
+        Raises:
+            Http404: если объект Answer с указанным PK не найден.
+        """
         answer = get_object_or_404(Answer, pk=pk)
+        logger.info(f"Получен ответ id={answer.id}")
         serializer = self.get_serializer(answer)
         return Response(serializer.data)
 
     def destroy(self, request, pk=None):
+        """
+        Удаляет объект Answer по его PK через API.
+
+        Аргументы:
+            request (rest_framework.request.Request): HTTP-запрос на удаление ответа.
+            pk (int|str, optional): Первичный ключ (ID) ответа для удаления.
+
+        Поведение:
+            - Использует `get_object_or_404` для поиска объекта Answer по `pk`.
+            - Логирует попытку удаления.
+            - Удаляет объект из базы данных.
+            - Логирует успешное удаление.
+
+        Returns:
+            rest_framework.response.Response: пустой ответ со статусом HTTP 204 (No Content).
+
+        Raises:
+            Http404: если объект Answer с указанным PK не найден.
+        """
         answer = get_object_or_404(Answer, pk=pk)
+        logger.info(f"Попытка удалить ответ id={answer.id}")
         answer.delete()
+        logger.info(f"Ответ id={answer.id} успешно удален")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 logger = logging.getLogger(__name__)
