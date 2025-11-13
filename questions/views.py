@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view
 
 from .models import Question, Answer
 from .serializers import QuestionSerializer, AnswerSerializer
+from.services import create_question, delete_question, create_answer, delete_answer
 
 class QuestionViewSet(viewsets.ModelViewSet):
     """
@@ -42,8 +43,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
         logger.info(f"Попытка создать вопрос: {request.data}")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        logger.info(f"Вопрос создан успешно: id={serializer.instance.id}")
+        question = create_question(text=serializer.validated_data['text'])
+        logger.info(f"Вопрос создан успешно: id={question.id}")
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -66,7 +67,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         question = self.get_object()
         logger.info(f"Попытка удалить вопрос id={question.id}")
         question_id = question.id
-        self.perform_destroy(question)
+        delete_question(question.id)
         logger.info(f"Вопрос id={question_id} и все ответы удалены")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
