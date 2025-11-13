@@ -19,11 +19,71 @@ class QuestionViewSet(viewsets.ModelViewSet):
         queryset (QuerySet): Набор вопросов, отсортированный по убыванию даты создания.
         serializer_class (Serializer): Сериализатор, используемый для валидации и представления данных (QuestionSerializer).
 
+    Методы:
+        create(self, request, *args, **kwargs): Создание вопроса с логгированием
+        destroy(self, request, *args, **kwargs): Удаляет вопрос и все связанные ответы с логгированием
+
     Примечание:
         Вложенные ответы включаются через `QuestionSerializer` (read-only).
     """
     queryset = Question.objects.all().order_by('-created_at')
     serializer_class = QuestionSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Создаёт новый объект Question через API.
+
+        Аргументы:
+            request (rest_framework.request.Request): HTTP-запрос с данными нового вопроса.
+            *args: дополнительные позиционные аргументы.
+            **kwargs: дополнительные именованные аргументы.
+
+        Поведение:
+            - Валидирует входные данные через сериализатор.
+            - Создаёт объект Question в базе данных.
+            - Логирует процесс создания вопроса.
+            - Возвращает Response со статусом 201 при успешном создании.
+
+        Returns:
+            rest_framework.response.Response: сериализованные данные созданного вопроса и заголовки ответа.
+
+        Raises:
+            serializers.ValidationError: если входные данные невалидны.
+        """
+        logger.info(f"Попытка создать вопрос: {request.data}")
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        logger.info(f"Вопрос создан успешно: id={serializer.instance.id}")
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def destroy(self, request, *args, **kwargs):
+        """
+       Удаляет объект Question и все связанные с ним ответы через API.
+
+       Аргументы:
+           request (rest_framework.request.Request): HTTP-запрос для удаления.
+           *args: дополнительные позиционные аргументы.
+           **kwargs: дополнительные именованные аргументы.
+
+       Поведение:
+           - Получает объект Question по PK через `self.get_object()`.
+           - Логирует попытку удаления.
+           - Выполняет удаление объекта и всех связанных Answer через `self.perform_destroy`.
+           - Логирует успешное удаление.
+
+       Returns:
+           rest_framework.response.Response: пустой ответ со статусом HTTP 204 (No Content).
+
+       Raises:
+           Http404: если объект Question с указанным PK не найден.
+       """
+        question = self.get_object()
+        logger.info(f"Попытка удалить вопрос id={question.id}")
+        self.perform_destroy(question)
+        logger.info(f"Вопрос id={question.id} и все ответы удалены")
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AnswerViewSet(viewsets.GenericViewSet):
