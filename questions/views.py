@@ -34,11 +34,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
             - Логирует процесс создания вопроса.
             - Возвращает Response со статусом 201 при успешном создании.
 
-        Returns:
-            rest_framework.response.Response: сериализованные данные созданного вопроса и заголовки ответа.
-
-        Raises:
-            serializers.ValidationError: если входные данные невалидны.
         """
         logger.info(f"Попытка создать вопрос: {request.data}")
         serializer = self.get_serializer(data=request.data)
@@ -58,11 +53,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
            - Выполняет удаление объекта и всех связанных Answer через `self.perform_destroy`.
            - Логирует успешное удаление.
 
-       Returns:
-           rest_framework.response.Response: пустой ответ со статусом HTTP 204 (No Content).
-
-       Raises:
-           Http404: если объект Question с указанным PK не найден.
        """
         question = self.get_object()
         logger.info(f"Попытка удалить вопрос id={question.id}")
@@ -96,11 +86,6 @@ class AnswerViewSet(viewsets.GenericViewSet):
             - Логирует факт получения ответа.
             - Сериализует объект с помощью `AnswerSerializer` и возвращает в Response.
 
-        Returns:
-            rest_framework.response.Response: сериализованные данные ответа с HTTP 200 при успешном получении.
-
-        Raises:
-            Http404: если объект Answer с указанным PK не найден.
         """
         answer = get_object_or_404(Answer, pk=pk)
         logger.info(f"Получен ответ id={answer.id}")
@@ -117,11 +102,6 @@ class AnswerViewSet(viewsets.GenericViewSet):
             - Удаляет объект из базы данных.
             - Логирует успешное удаление.
 
-        Returns:
-            rest_framework.response.Response: пустой ответ со статусом HTTP 204 (No Content).
-
-        Raises:
-            Http404: если объект Answer с указанным PK не найден.
         """
         answer = get_object_or_404(Answer, pk=pk)
         logger.info(f"Попытка удалить ответ id={answer.id}")
@@ -141,12 +121,6 @@ def create_answer_for_question(request, question_id):
         2. Создаёт `AnswerSerializer` для валидации входных данных.
         3. Если данные валидны — создаёт объект `Answer`, логирует создание и возвращает ответ со статусом HTTP 201.
         4. Если валидация не проходит — логирует ошибки и возвращает HTTP 400 с описанием ошибок.
-
-    Returns:
-        rest_framework.response.Response:
-            - 201 Created с сериализованными данными ответа при успешном создании;
-            - 400 Bad Request с ошибками валидации при некорректных данных;
-            - 404 Not Found если вопрос не найден.
 
     """
     logger.info(f"Получен запрос на создание ответа для вопроса {question_id}")
